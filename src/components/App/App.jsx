@@ -1,5 +1,7 @@
 import {Container, Section, Title} from './App.styled';
-import {Feedback} from '../Feedback/Feedback'
+import {Feedback} from '../Feedback/Feedback';
+import {Statistics} from '../Statistics/Statistics';
+import {Notification} from '../Notification/Notification'
 import React from 'react';
 
 class App extends React.Component {
@@ -9,17 +11,54 @@ class App extends React.Component {
     bad: 0
   }
 
+  addFeedback = (event) => {
+    const feedback = event.target.value;
+    this.setState(prevState => {
+      switch (feedback.toLowerCase()) {
+        case 'good':
+          return {good: prevState.good + 1}
+        case 'neutral':
+          return {neutral: prevState.neutral + 1}
+        case 'bad':
+          return {bad: prevState.bad + 1}
+        default:
+          break;
+      }
+    })
+  }
+
+  countTotalFeedback = () => {
+    const objValue = Object.values(this.state);
+    let totalValue = 0;
+    objValue.map(item => {
+      totalValue += item;
+    });
+    return totalValue;
+  }
+
+  countPositiveFeedbackPercentage = () => {
+    if(this.state.good > 0) {
+      return Math.round(this.state.good / this.countTotalFeedback() * 100);
+    } else {
+      return (0);
+    }
+  }
+
   render () {
     return (
       <Container>
         <Section>
           <Title>Please leave feedback</Title>
-          <Feedback/>
+          <Feedback addFeedback={this.addFeedback}/>
         </Section>
         <Section>
           <Title>Statictics</Title>
-        </Section>
-        
+          {this.countTotalFeedback() > 0 
+            ?<Statistics state={this.state} 
+          countTotalFeedback={this.countTotalFeedback} 
+          countPositiveFeedbackPercentage={this.countPositiveFeedbackPercentage}/>
+            :<Notification message='There is no feedback'/>}
+          </Section>
       </Container>
     );
   }
